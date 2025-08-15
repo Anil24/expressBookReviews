@@ -33,5 +33,3 @@ app.use("/customer", customer_routes);
 app.use("/", genl_routes);
 
 app.listen(PORT,()=>console.log("Server is running"));
-
-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
