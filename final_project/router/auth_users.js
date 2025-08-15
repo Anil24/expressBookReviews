@@ -61,13 +61,27 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
   if(isbn && book){
     let reviews = book.reviews;
-    books[id].reviews["username"] = {username, message: message};
+    books[id].reviews[username] = {message: message};
 
     return res.status(300).json({message: "User "+ username +" review updated '" +book.title+"'"});
   }else{
     return res.status(300).json({message: "Book not found"});
   }
 });
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const isbn = req.params.isbn;
+    const book = Object.entries(books).filter(([key,book]) => book.isbn == isbn).flat();
+    const username = req.session.authorization.username;
+    if(book.length > 0){
+        const id = book[0];
+        delete books[id].reviews[username];
+
+        return res.status(300).json({message: username +" review successfully deleted"});
+    }else{
+        return res.status(300).json({message: "Book not found."});
+    }
+})
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
