@@ -38,7 +38,7 @@ regd_users.post("/login", (req,res) => {
     if(authenticatedUser(username, password)){
         let accessToken = jwt.sign({
             data: password
-        }, 'access', {expiresIn: 60*60});
+        }, 'access', {expiresIn: 60*60*20});
         req.session.authorization = {
             accessToken, username
         }
@@ -52,7 +52,21 @@ regd_users.post("/login", (req,res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
-  return res.status(300).json({message: "Yet to be implemented7"});
+  const isbn = req.params.isbn;
+  const message = req.body.message;
+  let book = Object.entries(books).filter(([key,book]) => book.isbn == isbn).flat();
+  const id = book[0];
+  book = book[id];
+  const username = req.session.authorization.username;
+
+  if(isbn && book){
+    let reviews = book.reviews;
+    books[id].reviews["username"] = {username, message: message};
+
+    return res.status(300).json({message: "User "+ username +" review updated '" +book.title+"'"});
+  }else{
+    return res.status(300).json({message: "Book not found"});
+  }
 });
 
 module.exports.authenticated = regd_users;
