@@ -4,7 +4,7 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
-const url = 'https://raw.githubusercontent.com/Anil24/expressBookReviews/refs/heads/main/final_project/router/booksdb.js';
+const url = 'https://raw.githubusercontent.com/Anil24/expressBookReviews/refs/heads/main/final_project/router/booksList.json';
 
 public_users.post("/register", (req,res) => {
   //Write your code here
@@ -40,13 +40,11 @@ public_users.get('/',async function (req, res) {
 public_users.get('/isbn/:isbn',async function (req, res) {
   //Write your code here
   try{
-    const bookslist = await axios.get(url);
+    const bookslist = (await axios.get(url)).data;
     let isbn = req.params.isbn;
-    let book = Object.entries(bookslist).filter(([key,book]) => 
-        book.isbn === isbn
+    let book = Object.entries(bookslist).filter(([key,book]) =>
+        book.isbn == isbn
     )
-
-    console.log("test", bookslist, book);
 
     if(book.length > 0){
         return res.status(300).send(Object.fromEntries(book));
@@ -59,33 +57,43 @@ public_users.get('/isbn/:isbn',async function (req, res) {
  });
   
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  let author = req.params.author;
-  let book = Object.entries(books).filter(([key,book]) => 
-    book.author === author
-  )
+public_users.get('/author/:author',async function (req, res) {
+    try{
+        //Write your code here
+        const bookslist = (await axios.get(url)).data;
+        let author = req.params.author;
+        let book = Object.entries(bookslist).filter(([key,book]) => 
+            book.author === author
+        )
 
-  if(book.length > 0){
-    return res.status(300).send(Object.fromEntries(book));
-  }else{
-    return res.status(300).json({message: "No book found by author"});
-  }
+        if(book.length > 0){
+            return res.status(300).send(Object.fromEntries(book));
+        }else{
+            return res.status(300).json({message: "No book found by author"});
+        }
+    }catch (error){
+        return res.status(500).json({messsage: "Error in fatching a book"});
+    }
 });
 
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  let title = req.params.title;
-  let book = Object.entries(books).filter(([key,book]) => 
-    book.title === title
-  )
+public_users.get('/title/:title',async function (req, res) {
+    try{
+        //Write your code here
+        const bookslist = (await axios.get(url)).data;
+        let title = req.params.title;
+        let book = Object.entries(books).filter(([key,book]) => 
+            book.title === title
+        )
 
-  if(book.length > 0){
-    return res.status(300).send(Object.fromEntries(book));
-  }else{
-    return res.status(300).json({message: "No book found by title"});
-  }
+        if(book.length > 0){
+            return res.status(300).send(Object.fromEntries(book));
+        }else{
+            return res.status(300).json({message: "No book found by title"});
+        }
+    }catch (error){
+        return res.status(500).json({messsage: "Error in fatching a book"});
+    }
 });
 
 //  Get book review
